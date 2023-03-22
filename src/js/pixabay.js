@@ -23,6 +23,8 @@
 // У такому разі показуй повідомлення з текстом "Sorry, there are no images matching your search query. Please try again.".
 //  Для повідомлень використовуй бібліотеку notiflix.
 
-const axios = require('axios');
+// const axios = require('axios');
+import axios from 'axios';
+
 const API_KEY = '34465474 - c3837bc3938f4efd53294c219';
 const BASE_URL = 'https://pixabay.com/api/';
