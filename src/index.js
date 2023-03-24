@@ -22,17 +22,6 @@ function onSearch(e) {
   clearPictureContainer();
 }
 
-// function onSearch(e) {
-//   e.preventDefault();
-//   pixabayApiServise.query = e.currentTarget.elements.searchQuery.value;
-//   pixabayApiServise.resetPage();
-//   perPage = 0;
-//   console.log('submit');
-//   window.addEventListener('scroll', handleScroll);
-//   appendPictureMarkup();
-//   clearPictureContainer();
-// }
-
 function clearPictureContainer() {
   refs.pictureContainer.innerHTML = '';
 }
