@@ -23,7 +23,7 @@ img {
 .photo-card {
   display: flex;
   flex-direction: column;
-  outline: 1px solid pink;
+  outline: 1px solid palevioletred;
   margin: 10px;
 }
 .info {
@@ -43,7 +43,7 @@ img {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: darkblue;
+  background-color: green;
 }
 .btn-submit,
 .load-more {
