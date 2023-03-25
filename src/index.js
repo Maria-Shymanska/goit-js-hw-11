@@ -1,11 +1,11 @@
-import simpleLightbox from 'simplelightbox';
+import SimpleLightbox from 'simplelightbox';
 
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import fetchPictures from './js/fetchPictures';
 import { refs } from './js/refs';
-import insertCreatedAnimals from './js/createPicturesList';
-import smoothScrollToBottomPage from './js/addScrollButton';
+import insertCreatedList from './js/createPicturesList';
+import scrollToBottomPage from './js/addScrollButton';
 
 let currentPage = 1;
 refs.btnLoadMoreEl.classList.add('hide');
@@ -48,10 +48,10 @@ async function convertFetchResults(searchQuery, currentPage) {
 }
 function filterFetchResult(fetchResult) {
   if (currentPage === Math.ceil(fetchResult.totalHits / 40)) {
-    insertCreatedAnimals(fetchResult.hits);
+    insertCreatedList(fetchResult.hits);
     refs.btnLoadMoreEl.classList.add('hide');
     Notify.info("We're sorry, but you've reached the end of search results.");
-    smoothScrollToBottomPage();
+    scrollToBottomPage();
     lightbox.refresh();
     return;
   } else if (fetchResult.total === 0) {
@@ -61,9 +61,9 @@ function filterFetchResult(fetchResult) {
     );
     return;
   } else {
-    insertCreatedAnimals(fetchResult.hits);
+    insertCreatedList(fetchResult.hits);
     refs.btnLoadMoreEl.classList.remove('hide');
-    smoothScrollToBottomPage();
+    scrollToBottomPage();
     lightbox.refresh();
     return;
   }

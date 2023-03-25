@@ -24,8 +24,6 @@
 //  Для повідомлень використовуй бібліотеку notiflix.
 
 import axios from 'axios';
-
-import axios from 'axios';
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '34465474-c3837bc3938f4efd53294c219';
 const perPages = 40;
