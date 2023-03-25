@@ -23,49 +23,17 @@
 // У такому разі показуй повідомлення з текстом "Sorry, there are no images matching your search query. Please try again.".
 //  Для повідомлень використовуй бібліотеку notiflix.
 
-// const axios = require('axios');
 import axios from 'axios';
 
-const API_KEY = '34465474-c3837bc3938f4efd53294c219';
+import axios from 'axios';
 const BASE_URL = 'https://pixabay.com/api/';
+const API_KEY = '34465474-c3837bc3938f4efd53294c219';
+const perPages = 40;
 
-export default class PixabayApiServise {
-  constructor() {
-    this.searchQuery = '';
-    this.page = 1;
-    this.per_page = 40;
-  }
-
-  async fetchPicture() {
-    const searchParams = new URLSearchParams({
-      key: API_KEY,
-      q: this.searchQuery,
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: true,
-      page: this.page,
-      per_page: this.per_page,
-    });
-
-    const url = `${BASE_URL}?${searchParams}`;
-    this.incrementPage();
-    return await axios.get(url);
-  }
-
-  incrementPage() {
-    this.page += 1;
-  }
-  resetPage() {
-    this.page = 1;
-  }
-
-  get per_Page() {
-    return this.per_page;
-  }
-  get query() {
-    return this.searchQuery;
-  }
-  set query(newQuery) {
-    this.searchQuery = newQuery;
-  }
-}
+const fetchPictures = async (searchQuery, page) => {
+  const response = await axios.get(
+    `${BASE_URL}?key=${API_KEY}&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${perPages}&page=${page}`
+  );
+  return response.data;
+};
+export default fetchPictures;

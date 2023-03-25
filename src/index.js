@@ -1,125 +1,73 @@
 import simpleLightbox from 'simplelightbox';
+
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import PixabayApiServise from './js/pixabay';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import fetchPictures from './js/fetchPictures';
+import { refs } from './js/refs';
+import createOneAnimal from './js/createPicturesList';
+import smoothScrollToBottomPage from './js/addScrollButton';
 
-const refs = {
-  searchForm: document.querySelector('#search-form'),
-  pictureContainer: document.querySelector('.gallery'),
-};
+let currentPage = 1;
+refs.btnLoadMoreEl.classList.add('hide');
+const lightbox = new SimpleLightbox('.gallery a', {
+  captions: true,
+  captionSelector: 'img',
+  captionsData: 'alt',
+  captionPosition: 'bottom',
+  captionDelay: 250,
+});
 
-const pixabayApiServise = new PixabayApiServise();
-let perPage = 0;
+refs.formEl.addEventListener('submit', onSubmitForm);
+refs.btnLoadMoreEl.addEventListener('click', onClickBtnLodeMore);
 
-refs.searchForm.addEventListener('submit', onSearch);
-
-function onSearch(e) {
-  e.preventDefault();
-  pixabayApiServise.query = e.currentTarget.elements.searchQuery.value;
-  pixabayApiServise.resetPage();
-  perPage = 0;
-  appendPictureMarkup();
-  clearPictureContainer();
+function onSubmitForm(event) {
+  event.preventDefault();
+  refs.btnLoadMoreEl.classList.add('hide');
+  const searchName = event.currentTarget.elements.searchQuery.value
+    .trim()
+    .toUpperCase();
+  clearGalleryList();
+  currentPage = 1;
+  convertFetchResults(searchName, currentPage);
 }
-
-function clearPictureContainer() {
-  refs.pictureContainer.innerHTML = '';
+function onClickBtnLodeMore() {
+  currentPage += 1;
+  const searchName = refs.inputEl.value.trim().toUpperCase();
+  convertFetchResults(searchName, currentPage);
 }
-
-function notifyMessage(hits, totalHits, perPage) {
-  if ((hits.length !== 0) & (perPage === pixabayApiServise.per_page)) {
-    Notify.success(`Hooray! We found ${totalHits} images.`);
+async function convertFetchResults(searchQuery, currentPage) {
+  try {
+    const fetchResult = await fetchPictures(searchQuery, currentPage);
+    if (currentPage === 1) {
+      Notify.info(`Hooray! We found ${fetchResult.totalHits} images.`);
+    }
+    filterFetchResult(fetchResult);
+  } catch (error) {
+    console.log(error);
   }
-  if (hits.length === 0 && totalHits === 0) {
+}
+function filterFetchResult(fetchResult) {
+  if (currentPage === Math.ceil(fetchResult.totalHits / 40)) {
+    insertCreatedAnimals(fetchResult.hits);
+    refs.btnLoadMoreEl.classList.add('hide');
+    Notify.info("We're sorry, but you've reached the end of search results.");
+    smoothScrollToBottomPage();
+    lightbox.refresh();
+    return;
+  } else if (fetchResult.total === 0) {
+    refs.btnLoadMoreEl.classList.add('hide');
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
-
+    return;
+  } else {
+    insertCreatedAnimals(fetchResult.hits);
+    refs.btnLoadMoreEl.classList.remove('hide');
+    smoothScrollToBottomPage();
+    lightbox.refresh();
     return;
   }
-  if (perPage > totalHits) {
-    Notify.info(`We're sorry, but you've reached the end of search results.`);
-    window.removeEventListener('scroll', handleScroll);
-    return;
-  }
 }
-
-function simpleLightbox() {
-  let gallery = new SimpleLightbox('.photo-card a', {});
-  gallery.refresh();
-}
-
-async function appendPictureMarkup() {
-  try {
-    const response = await pixabayApiServise.fetchPicture();
-    const {
-      data: { hits, totalHits },
-    } = response;
-    refs.pictureContainer.insertAdjacentHTML('beforeend', renderMarkup(hits));
-    perPageCounter();
-    notifyMessage(hits, totalHits, perPage);
-  } catch (error) {
-    console.log(error.message);
-  }
-  simpleLightbox();
-}
-
-function renderMarkup(hits) {
-  return hits
-    .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        likes,
-        views,
-        comments,
-        tags,
-        downloads,
-      }) => {
-        return `<div class='photo-card'>
-    <a href='${largeImageURL}'><img
-        src='${webformatURL}'
-        alt='${tags}'
-        loading='lazy'
-      /></a>
-    <div class='info'>
-      <p class='info-item'>
-        <b>Likes</b>
-        ${likes}
-      </p>
-      <p class='info-item'>
-        <b>Views</b>
-        ${views}
-      </p>
-      <p class='info-item'>
-        <b>Comments</b>
-        ${comments}
-      </p>
-      <p class='info-item'>
-        <b>Downloads</b>
-        ${downloads}
-      </p>
-    </div>
-  </div>`;
-      }
-    )
-    .join('');
-}
-
-function perPageCounter() {
-  perPage += pixabayApiServise.per_page;
-}
-
-function handleScroll() {
-  console.log('scroll-start');
-  if (
-    window.scrollY + window.innerHeight >
-    document.documentElement.scrollHeight
-  ) {
-    console.log('y=', window.scrollY);
-    console.log('H=', window.innerHeight);
-    console.log('sH=', document.documentElement.scrollHeight);
-    console.log('scroll in if');
-    appendPictureMarkup();
-  }
+function clearGalleryList() {
+  refs.galleryEl.innerHTML = '';
 }
